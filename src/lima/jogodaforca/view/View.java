@@ -1,6 +1,10 @@
 package lima.jogodaforca.view;
 
+import java.util.List;
+
 import lima.jogodaforca.exceptions.ViewException;
+import lima.jogodaforca.model.Jogador;
+import lima.jogodaforca.model.Palavra;
 
 public interface View {
 
@@ -19,5 +23,9 @@ public interface View {
 	
 	public abstract void notificarUsuario(Exception exception);
 
-	public abstract int selecionarTema() throws ViewException;
+	public abstract int selecionarTema(List<String> temas) throws ViewException;
+	
+	public abstract char jogar(Jogador jogador, String tema, Palavra palavra, int quantidadeErros) throws ViewException;
+	
+	public abstract void notificarResultado(String mensagem, Jogador jogador, String tema, Palavra palavra, int quantidadeErros);
 }

@@ -38,4 +38,11 @@ public class Console {
 		}
 		return str;
 	}
+	
+	public static char readCharacter() throws IOException {
+		char caractere = 0;
+		InputStreamReader inReader = new InputStreamReader(System.in);
+		caractere = (char) inReader.read();
+		return caractere;
+	}
 }

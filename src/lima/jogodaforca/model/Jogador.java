@@ -62,7 +62,15 @@ public class Jogador {
 		return Jogador.jogadorDAO.pequisarJogador(login);
 	}
 	
-//	public static void main(String[] args) {
-//		System.out.println(Jogador.validarNome("sda Á„·ddasd"));
-//	}
+	public boolean update() {
+		return Jogador.jogadorDAO.update(this);
+	}
+	
+	public void incrementarVitorias() {
+		this.vitorias++;
+	}
+	
+	public void incrementarDerrotas() {
+		this.derrotas++;
+	}
 }

@@ -1,95 +1,115 @@
 package lima.jogodaforca.controller;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import lima.jogodaforca.exceptions.ModelException;
 import lima.jogodaforca.exceptions.ViewException;
+import lima.jogodaforca.model.Dicionario;
 import lima.jogodaforca.model.Jogador;
 import lima.jogodaforca.model.Login;
-import lima.jogodaforca.view.JavaFXView;
+import lima.jogodaforca.model.Palavra;
 import lima.jogodaforca.view.TerminalView;
 import lima.jogodaforca.view.View;
 
 public class JogoController {
 
-	private View jogoViews;
+	private static final int MAX_TENTATIVAS = 6;
 	
+	private View jogoViews;
 	private Jogador jogador;
+	private Palavra palavra;
+	private int erros;
+	private Set<Character> caracteres;
 
 	public JogoController() {
 		super();
 		this.jogoViews = new TerminalView();
 		// this.jogoViews = new JavaFXView();
 		this.jogador = null;
+		this.palavra = null;
+		this.erros = 0;
+		this.caracteres = new HashSet<>();
 	}
 	
 	public void iniciarApp() {
+//		this.jogador = new Jogador("rafa", 3, 1, new Login("3231", "ewqewa"));
+//		this.iniciarJogo();
+//		System.exit(0);
 		try {
-			int opcao = this.jogoViews.menu();
-			if (opcao == 2) {
-				String[] cadastro = null;
-				boolean result = false;
-				while (result == false) {
-					cadastro = this.jogoViews.cadastrarJogador();
-					try { 
-						result = Login.validar(cadastro[0], cadastro[1]) && 
-								Jogador.validarNome(cadastro[2]);
-					} catch (ModelException e) {
-						this.jogoViews.notificarUsuario(e.getMessage());
-						System.out.println();
-					}
-				}	
-				try {
-					Login l = new Login(cadastro[0], cadastro[1]);
-					// Jogador j = Jogador.pesquisar(l);
-					this.jogador = Jogador.pesquisar(l);
-					// if (j == null) {
-					if (this.jogador == null) {
-						// j = new Jogador(cadastro[2], l);
-						this.jogador = new Jogador(cadastro[2], l);
-						// result = j.cadastrar();
-						result = this.jogador.cadastrar();
-						if (result == true) {
-							this.jogoViews.notificarUsuario("Jogador " + cadastro[2] + " cadastrado com sucesso");
-						}
-					} else {
-						this.jogoViews.notificarUsuario("Já existe um jogador cadastrado com login '" + cadastro[0] + "'");
-						System.out.println();
-					}
-				} catch (ModelException e) {
-					this.jogoViews.notificarUsuario(e.getMessage());
-					System.out.println();
-				}
-			} else if (opcao == 1) {
-				boolean result = false;
-				while (result == false) {
-					String[] login = this.jogoViews.login();
-					try {
-						result = Login.validar(login[0], login[1]);
-					} catch (ModelException e) {
-						this.jogoViews.notificarUsuario(e.getMessage());
-						System.out.println();
-						continue;
-					}
-					try {
-						Login l = new Login(login[0], login[1]);
-						// Jogador jogador = Jogador.pesquisar(l);
-						this.jogador = Jogador.pesquisar(l);
-						// if (jogador == null) {
-						if (this.jogador == null) {
-							this.jogoViews.notificarUsuario("Login e password inválidos");
+			while (true) {
+				int opcao = this.jogoViews.menu();
+				if (opcao == 2) {
+					String[] cadastro = null;
+					boolean result = false;
+					while (result == false) {
+						cadastro = this.jogoViews.cadastrarJogador();
+						try { 
+							result = Login.validar(cadastro[0], cadastro[1]) && 
+									Jogador.validarNome(cadastro[2]);
+						} catch (ModelException e) {
+							this.jogoViews.notificarUsuario(e.getMessage());
 							System.out.println();
-							result = false;
+						}
+					}	
+					try {
+						Login l = new Login(cadastro[0], cadastro[1]);
+						// Jogador j = Jogador.pesquisar(l);
+						this.jogador = Jogador.pesquisar(l);
+						// if (j == null) {
+						if (this.jogador == null) {
+							// j = new Jogador(cadastro[2], l);
+							this.jogador = new Jogador(cadastro[2], l);
+							// result = j.cadastrar();
+							result = this.jogador.cadastrar();
+							if (result == true) {
+								this.jogoViews.notificarUsuario("Jogador " + cadastro[2] + " cadastrado com sucesso");
+								System.out.println();
+							}
+						} else {
+							this.jogoViews.notificarUsuario("Já existe um jogador cadastrado com login '" + cadastro[0] + "'");
+							System.out.println();
 						}
 					} catch (ModelException e) {
 						this.jogoViews.notificarUsuario(e.getMessage());
 						System.out.println();
-						result = true;
 					}
+				} else if (opcao == 1) {
+					boolean result = false;
+					while (result == false) {
+						String[] login = this.jogoViews.login();
+						try {
+							result = Login.validar(login[0], login[1]);
+						} catch (ModelException e) {
+							this.jogoViews.notificarUsuario(e.getMessage());
+							System.out.println();
+							continue;
+						}
+						try {
+							Login l = new Login(login[0], login[1]);
+							// Jogador jogador = Jogador.pesquisar(l);
+							this.jogador = Jogador.pesquisar(l);
+							// if (jogador == null) {
+							if (this.jogador == null) {
+								this.jogoViews.notificarUsuario("Login e password inválidos");
+								System.out.println();
+								result = false;
+							}
+						} catch (ModelException e) {
+							this.jogoViews.notificarUsuario(e.getMessage());
+							System.out.println();
+							result = true;
+						}
+					}
+					
+					this.iniciarJogo();
+				} else if (opcao == 0) {
+					System.exit(0);
 				}
-				
-				this.iniciarJogo();
 			}
 		} catch (ViewException e) {
-			System.out.println(e.getMessage());
+			this.jogoViews.notificarUsuario(e.getMessage());
 			Throwable cause = e.getCause();
 			if (cause != null) {
 				if (cause instanceof java.io.IOException) {
@@ -100,11 +120,71 @@ public class JogoController {
 		}
 	}
 	
-	public void iniciarJogo() {
+	private void iniciarJogo() {
 		try {
-			int opcao = this.jogoViews.selecionarTema();
+			int opcao = -1;
+			try {
+				while (true) {
+					Dicionario dicionario = Dicionario.getDicionario();
+					List<String> temas = dicionario.carregarTemas();
+					opcao = this.jogoViews.selecionarTema(temas);
+					if (opcao == 0) {
+						break;
+					}
+					//System.out.println(opcao);
+					String palavra = dicionario.sotearPalavra(opcao);
+					//System.out.println(palavra);
+					this.palavra = new Palavra(palavra);
+					String tema = temas.get(opcao - 1);
+					
+					boolean vitoria = false;
+					char caractere = ' ';
+					while (this.erros < JogoController.MAX_TENTATIVAS) {
+						if (this.palavra.getMascara().equalsIgnoreCase(palavra)) {
+							vitoria = true;
+							break;
+						}
+						while (true) {
+							caractere = this.jogoViews.jogar(this.jogador, tema, this.palavra, this.erros);
+							if (Character.isLetter(caractere) == false) {
+								this.jogoViews.notificarUsuario("caractere inválido");
+								continue;
+							}
+							if (this.caracteres.contains(Character.toUpperCase(caractere)) == true) {
+								this.jogoViews.notificarUsuario("caractere " + caractere + " já utilizado");
+								continue;
+							}
+							this.caracteres.add(Character.toUpperCase(caractere));
+							break;
+						}
+						boolean result = this.palavra.verificarCaractere(Character.toUpperCase(caractere));
+						if (result == false) {
+							this.erros++;
+						}
+					}
+					if (vitoria == true) {
+						this.jogador.incrementarVitorias();
+						System.out.println();
+						this.jogoViews.notificarResultado("Você venceu o jogo", this.jogador, tema, this.palavra, this.erros);
+						System.out.println();
+					} else {
+						this.jogador.incrementarDerrotas();
+						System.out.println();
+						this.jogoViews.notificarResultado("Você perdeu o jogo", this.jogador, tema, this.palavra, this.erros);
+						System.out.println();
+					}
+					this.erros = 0;
+					this.caracteres.clear();
+					
+					this.jogador.update();
+				}
+			} catch (ModelException e) {
+				this.jogoViews.notificarUsuario(e.getMessage());
+				e.printStackTrace();
+				System.exit(1);
+			}
 		} catch (ViewException e) {
-			System.out.println(e.getMessage());
+			this.jogoViews.notificarUsuario(e.getMessage());
 			Throwable cause = e.getCause();
 			if (cause != null) {
 				if (cause instanceof java.io.IOException) {

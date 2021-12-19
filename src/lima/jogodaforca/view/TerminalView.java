@@ -1,7 +1,11 @@
 package lima.jogodaforca.view;
 
 import java.io.IOException;
+import java.util.List;
+
 import lima.jogodaforca.exceptions.ViewException;
+import lima.jogodaforca.model.Jogador;
+import lima.jogodaforca.model.Palavra;
 
 public class TerminalView implements View {
 
@@ -10,6 +14,7 @@ public class TerminalView implements View {
 	private TerminalCadastroJogadorView tCadastroJogador;
 	private TerminalNotificacaoView tNotifica;
 	private TerminalTemaView tTema;
+	private TerminalJogoView tJogo;
 
 	public TerminalView() {
 		super();
@@ -18,6 +23,7 @@ public class TerminalView implements View {
 		this.tCadastroJogador = new TerminalCadastroJogadorView();
 		this.tNotifica = new TerminalNotificacaoView();
 		this.tTema = new TerminalTemaView();
+		this.tJogo = new TerminalJogoView();
 	}
 	
 	@Override
@@ -58,11 +64,25 @@ public class TerminalView implements View {
 	}
 	
 	@Override
-	public int selecionarTema() throws ViewException {
+	public int selecionarTema(List<String> temas) throws ViewException {
 		try {
-			return this.tTema.imprimirSelecaoTema();
+			return this.tTema.imprimirSelecaoTema(temas);
 		} catch (IOException e) {
 			throw new ViewException("Erro de I/O ao realizar cadastro jogador", e);
 		}
+	}
+	
+	@Override
+	public char jogar(Jogador jogador, String tema, Palavra palavra, int quantidadeErros) throws ViewException {
+		try {
+			return this.tJogo.imprimirJogada(jogador, tema, palavra, quantidadeErros);
+		} catch (IOException e) {
+			throw new ViewException("Erro de I/O ao realizar jogada", e);
+		}
+	}
+	
+	@Override
+	public void notificarResultado(String mensagem, Jogador jogador, String tema, Palavra palavra, int quantidadeErros) {
+		this.tJogo.imprimirResultado(mensagem, jogador, tema, palavra, quantidadeErros);
 	}
 }

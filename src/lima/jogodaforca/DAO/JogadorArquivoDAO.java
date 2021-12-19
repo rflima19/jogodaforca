@@ -73,6 +73,12 @@ public class JogadorArquivoDAO implements JogadorDAO {
 		}
 		return jogador;
 	}
+	
+	@Override
+	public boolean update(Jogador jogador) {
+		
+		return false;
+	}
 
 	private void criarDiretorio(File diretorio) throws IOException {
 		if ((diretorio.exists() == false) && (diretorio.isDirectory() == true)) {
