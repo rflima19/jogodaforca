@@ -17,9 +17,6 @@ public class Jogador {
 
 	public Jogador(String nome, int vitorias, int derrotas, Login login) /* throws ModelException */ {
 		super();
-//		if (Jogador.validarNome(nome) == false) {
-//			throw new ModelException("Nome " + nome + " não é válido");
-//		}
 		this.nome = nome;
 		this.login = login;
 		this.vitorias = vitorias;
@@ -62,7 +59,7 @@ public class Jogador {
 		return Jogador.jogadorDAO.pequisarJogador(login);
 	}
 	
-	public boolean update() {
+	public boolean update() throws ModelException {
 		return Jogador.jogadorDAO.update(this);
 	}
 	

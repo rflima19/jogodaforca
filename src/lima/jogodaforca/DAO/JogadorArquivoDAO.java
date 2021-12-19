@@ -9,11 +9,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import lima.jogodaforca.exceptions.ModelException;
 import lima.jogodaforca.model.Jogador;
@@ -75,9 +72,77 @@ public class JogadorArquivoDAO implements JogadorDAO {
 	}
 	
 	@Override
-	public boolean update(Jogador jogador) {
+	public boolean update(Jogador jogador) throws ModelException {
+		if (jogador == null) {
+			throw new IllegalArgumentException("Argumento jogador nulo");
+		}
 		
-		return false;
+		try {
+			this.criarDiretorio(JogadorArquivoDAO.DIRETORIO);
+			this.criarArquivo(JogadorArquivoDAO.ARQUIVO);
+		} catch (IOException e) {
+			throw new ModelException("Não foi possivel criar o arquivo", e);
+		}
+		
+		if (JogadorArquivoDAO.ARQUIVO.length() == 0) {
+			throw new ModelException("Base de dados vazia");
+		}
+		
+		File arquivoTemporario = new File(JogadorArquivoDAO.DIRETORIO, "jogadores_temp.txt");
+		try {
+			arquivoTemporario.createNewFile();
+		} catch (IOException e) {
+			throw new ModelException("Não foi possivel criar o arquivo temporário", e);
+		}
+		
+		try {
+			try (Reader in = new FileReader(JogadorArquivoDAO.ARQUIVO); 
+					BufferedReader buffer = new BufferedReader(in);
+					Writer out = new FileWriter(arquivoTemporario); 
+					PrintWriter print = new PrintWriter(out)) {
+				String line = null;
+				while ((line = buffer.readLine()) != null) {
+					String[] tokens = line.split(";");
+					String loginHashHex = jogador.getLogin().getLogin();
+					//String passwordHashHex = this.gerarHashSHA256(login.getPassword());
+					if ((loginHashHex.equals(tokens[0]) == true) /*&&
+							(passwordHashHex.equals(tokens[1]) == true)*/) {
+						tokens[3] = Integer.toString(jogador.getVitorias());
+						tokens[4] = Integer.toString(jogador.getDerrotas());
+					}
+					StringBuilder strb = new StringBuilder();
+					strb.append(tokens[0]);
+					strb.append(";");
+					strb.append(tokens[1]);
+					strb.append(";");
+					strb.append(tokens[2]);
+					strb.append(";");
+					strb.append(tokens[3]);
+					strb.append(";");
+					strb.append(tokens[4]);
+					print.println(strb.toString());
+				}
+			} catch (IOException e) {
+				throw new ModelException("Não foi possível ler a base de dados", e);
+			}
+			
+			try (Reader in = new FileReader(arquivoTemporario); 
+					BufferedReader buffer = new BufferedReader(in);
+					Writer out = new FileWriter(JogadorArquivoDAO.ARQUIVO); 
+					PrintWriter print = new PrintWriter(out)) {
+				String line = null;
+				while ((line = buffer.readLine()) != null) {
+					print.println(line);
+				}
+			} catch (IOException e) {
+				throw new ModelException("Não foi possível restaurar a base de dados", e);
+			}
+		} finally {
+			if (arquivoTemporario.exists() == true) {
+				arquivoTemporario.delete();
+			}
+		}
+		return true;
 	}
 
 	private void criarDiretorio(File diretorio) throws IOException {
@@ -124,26 +189,5 @@ public class JogadorArquivoDAO implements JogadorDAO {
 			e.printStackTrace();
 		}
 		return hexHash.toString();
-	}
-
-	public static void main(String[] args) {
-		String senha = "12345a678";
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA256");
-			byte[] hash = md.digest(senha.getBytes("UTF-8"));
-			System.out.println(hash.length);
-			System.out.println(Arrays.toString(hash));
-
-			StringBuilder hexHash = new StringBuilder();
-			for (byte b : hash) {
-				hexHash.append(String.format("%02X", 0xFF & b));
-			}
-			String senhaHex = hexHash.toString();
-			System.out.println(senhaHex);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
 	}
 }

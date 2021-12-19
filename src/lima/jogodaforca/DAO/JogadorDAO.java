@@ -10,5 +10,5 @@ public interface JogadorDAO {
 
 	public abstract Jogador pequisarJogador(Login login) throws ModelException;
 
-	public abstract boolean update(Jogador jogador);
+	public abstract boolean update(Jogador jogador) throws ModelException;
 }

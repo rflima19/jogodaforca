@@ -34,9 +34,6 @@ public class JogoController {
 	}
 	
 	public void iniciarApp() {
-//		this.jogador = new Jogador("rafa", 3, 1, new Login("3231", "ewqewa"));
-//		this.iniciarJogo();
-//		System.exit(0);
 		try {
 			while (true) {
 				int opcao = this.jogoViews.menu();
@@ -55,13 +52,9 @@ public class JogoController {
 					}	
 					try {
 						Login l = new Login(cadastro[0], cadastro[1]);
-						// Jogador j = Jogador.pesquisar(l);
 						this.jogador = Jogador.pesquisar(l);
-						// if (j == null) {
 						if (this.jogador == null) {
-							// j = new Jogador(cadastro[2], l);
 							this.jogador = new Jogador(cadastro[2], l);
-							// result = j.cadastrar();
 							result = this.jogador.cadastrar();
 							if (result == true) {
 								this.jogoViews.notificarUsuario("Jogador " + cadastro[2] + " cadastrado com sucesso");
@@ -88,9 +81,7 @@ public class JogoController {
 						}
 						try {
 							Login l = new Login(login[0], login[1]);
-							// Jogador jogador = Jogador.pesquisar(l);
 							this.jogador = Jogador.pesquisar(l);
-							// if (jogador == null) {
 							if (this.jogador == null) {
 								this.jogoViews.notificarUsuario("Login e password inválidos");
 								System.out.println();
@@ -131,9 +122,7 @@ public class JogoController {
 					if (opcao == 0) {
 						break;
 					}
-					//System.out.println(opcao);
 					String palavra = dicionario.sotearPalavra(opcao);
-					//System.out.println(palavra);
 					this.palavra = new Palavra(palavra);
 					String tema = temas.get(opcao - 1);
 					
@@ -176,6 +165,7 @@ public class JogoController {
 					this.erros = 0;
 					this.caracteres.clear();
 					
+					// atualiza pontuação
 					this.jogador.update();
 				}
 			} catch (ModelException e) {

@@ -13,9 +13,8 @@ public class Login {
 	private String login;
 	private String password;
 
-	public Login(String login, String password) /* throws ModelException */ {
+	public Login(String login, String password) {
 		super();
-		// Login.validar(login, password);
 		this.login = login;
 		this.password = password;
 	}
@@ -88,12 +87,4 @@ public class Login {
 		}
 		return lista;
 	}
-
-//	public static void main(String[] args) throws Exception {
-//		Login l = new Login("das", "dsd");
-//		List li = l.capturaCaracteresInvalidos("abcgt", "[cbg]+");
-//		System.out.println(li);
-//		
-//		Login.validar("sdWlS2@_.d", "sdWlS2@_.d");
-//	}
 }

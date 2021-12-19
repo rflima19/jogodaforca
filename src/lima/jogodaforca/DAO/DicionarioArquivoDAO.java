@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Random;
 
 import lima.jogodaforca.exceptions.ModelException;
-import lima.jogodaforca.model.Jogador;
-import lima.jogodaforca.model.Login;
 
 public class DicionarioArquivoDAO implements DicionarioDAO {
 

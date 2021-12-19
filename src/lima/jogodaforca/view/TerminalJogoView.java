@@ -5,19 +5,11 @@ import java.io.IOException;
 import lima.jogodaforca.model.Jogador;
 import lima.jogodaforca.model.Palavra;
 import lima.jogodaforca.utils.Console;
-import lima.jogodaforca.utils.TerminalUtils;
 
 public class TerminalJogoView {
 
-//	private Jogador jogador;
-//	private String tema;
-//	private Palavra palavra;
-
-	public TerminalJogoView(/*Jogador jogador, String tema, Palavra palavra*/) {
+	public TerminalJogoView() {
 		super();
-//		this.jogador = jogador;
-//		this.tema = tema;
-//		this.palavra = palavra;
 	}
 
 	public char imprimirJogada(Jogador jogador, String tema, Palavra palavra, int quantidadeErros) throws IOException {
