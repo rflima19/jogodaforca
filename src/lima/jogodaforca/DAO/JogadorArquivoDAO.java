@@ -29,6 +29,11 @@ public class JogadorArquivoDAO implements JogadorDAO {
 
 	@Override
 	public boolean cadastrarJogador(Jogador jogador) throws ModelException {
+		try {
+			this.criarArquivos();
+		} catch (IOException e) {
+			throw new ModelException("Não foi possivel criar um novo arquivo no sistema", e);
+		}
 		try (Writer writer = Files.newBufferedWriter(JogadorArquivoDAO.ARQUIVO, StandardOpenOption.CREATE,
 				StandardOpenOption.WRITE, StandardOpenOption.APPEND); PrintWriter pw = new PrintWriter(writer)) {
 			String s = this.converteJogador(jogador);
@@ -42,6 +47,14 @@ public class JogadorArquivoDAO implements JogadorDAO {
 
 	@Override
 	public Jogador pequisarJogador(Login login) throws ModelException {
+		try {
+			boolean isCriouArquivo = this.criarArquivos();
+			if (isCriouArquivo == true) {
+				return null; // criou a base de dados vazia
+			}
+		} catch (IOException e) {
+			throw new ModelException("Não foi possivel criar um novo arquivo no sistema", e);
+		}
 		Jogador jogador = null;
 		try (InputStream in = Files.newInputStream(JogadorArquivoDAO.ARQUIVO, StandardOpenOption.CREATE,
 				StandardOpenOption.READ); BufferedReader buffer = new BufferedReader(new InputStreamReader(in))) {
@@ -155,5 +168,17 @@ public class JogadorArquivoDAO implements JogadorDAO {
 			e.printStackTrace();
 		}
 		return hexHash.toString();
+	}
+	
+	private synchronized boolean criarArquivos() throws IOException {
+		boolean result = false;
+		if (Files.exists(JogadorArquivoDAO.ARQUIVO) == false) {
+			if (Files.exists(JogadorArquivoDAO.DIRETORIO) == false) {
+				Files.createDirectory(JogadorArquivoDAO.DIRETORIO);
+			}
+			Files.createFile(JogadorArquivoDAO.ARQUIVO);
+			result = true;
+		}
+		return result;
 	}
 }
