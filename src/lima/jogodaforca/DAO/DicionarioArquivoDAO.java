@@ -1,11 +1,14 @@
 package lima.jogodaforca.DAO;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,24 +18,26 @@ import lima.jogodaforca.exceptions.ModelException;
 
 public class DicionarioArquivoDAO implements DicionarioDAO {
 
-	public static final File DIRETORIO = new File("temas" + File.separator);
+	public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
+	public static final Path DIRETORIO = Paths.get("temas" + DicionarioArquivoDAO.SEPARATOR);
 	
 	@Override
 	public List<String> carregarTemas() throws ModelException {
-		if (DicionarioArquivoDAO.DIRETORIO.exists() == false) {
-			throw new ModelException("Diretório " + DicionarioArquivoDAO.DIRETORIO.getAbsolutePath() + " não existe");
+		if (Files.exists(DicionarioArquivoDAO.DIRETORIO) == false) {
+			throw new ModelException("Diretório " + DicionarioArquivoDAO.DIRETORIO.toAbsolutePath() + " não existe");
 		}
 		List<String> temas = new ArrayList<>();
-		File[] arquivos = DicionarioArquivoDAO.DIRETORIO.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".txt");
+		try (DirectoryStream<Path> arquivos = Files.newDirectoryStream(
+				DicionarioArquivoDAO.DIRETORIO, 
+				p -> {
+					return Files.isRegularFile(p) && p.getFileName().toString().endsWith(".txt");
+				})) {
+			for (Path p : arquivos) {
+				String nome = p.getFileName().toString();
+				temas.add(nome.replaceAll("\\.txt", ""));
 			}
-		});
-		for (int i = 0; i < arquivos.length; i++) {
-			File file = arquivos[i];
-			String nome = file.getName();
-			temas.add(nome.replaceAll("\\.txt", ""));
+		} catch (IOException e) {
+			throw new ModelException(e);
 		}
 		return temas;
 	}
@@ -42,12 +47,12 @@ public class DicionarioArquivoDAO implements DicionarioDAO {
 		if (nomeArquivo.endsWith(".txt") == false) {
 			nomeArquivo = nomeArquivo + ".txt";
 		}
-		File arquivo = new File(DicionarioArquivoDAO.DIRETORIO, nomeArquivo);
-		if (arquivo.exists() == false) {
-			throw new ModelException("Arquivo " + arquivo.getAbsolutePath() + " não existe");
+		Path arquivo = DicionarioArquivoDAO.DIRETORIO.resolve(nomeArquivo);
+		if (Files.exists(arquivo) == false) {
+			throw new ModelException("Arquivo " + arquivo.toAbsolutePath() + " não existe");
 		}
 		List<String> palavras = new ArrayList<>();
-		try (Reader in = new FileReader(arquivo);
+		try (Reader in = Files.newBufferedReader(arquivo, Charset.defaultCharset());
 				BufferedReader buffer = new BufferedReader(in)) {
 			String line = null;
 			while ((line = buffer.readLine()) != null) {
@@ -55,10 +60,10 @@ public class DicionarioArquivoDAO implements DicionarioDAO {
 			}
 		} catch (IOException e) {
 			throw new ModelException(
-					"Falha ao abrir o arquivo " + JogadorArquivoDAO.ARQUIVO.getAbsolutePath() + " para leitura", e);
+					"Falha ao abrir o arquivo " + arquivo.toAbsolutePath() + " para leitura", e);
 		}
 		if (palavras.isEmpty() == true) {
-			throw new ModelException("Arquivo " + arquivo.getAbsolutePath() + " vazio");
+			throw new ModelException("Arquivo " + arquivo.toAbsolutePath() + " vazio");
 		}
 		Random r = new Random(Instant.now().toEpochMilli());
 		int indexSoteado = r.nextInt(palavras.size());
