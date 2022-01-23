@@ -5,11 +5,13 @@ import java.util.List;
 
 import lima.jogodaforca.DAO.DicionarioArquivoDAO;
 import lima.jogodaforca.DAO.DicionarioDAO;
+import lima.jogodaforca.DAO.DicionarioDataBaseDAO;
 import lima.jogodaforca.exceptions.ModelException;
 
 public class Dicionario {
 
-	private static DicionarioDAO dicionarioDAO = new DicionarioArquivoDAO();
+	//private static DicionarioDAO dicionarioDAO = new DicionarioArquivoDAO();
+	private static DicionarioDAO dicionarioDAO = new DicionarioDataBaseDAO();
 	private static Dicionario instance = null;
 	
 	private List<String> temas;

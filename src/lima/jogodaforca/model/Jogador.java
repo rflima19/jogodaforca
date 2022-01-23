@@ -4,12 +4,14 @@ import java.util.regex.Pattern;
 
 import lima.jogodaforca.DAO.JogadorArquivoDAO;
 import lima.jogodaforca.DAO.JogadorDAO;
+import lima.jogodaforca.DAO.JogadorDataBaseDAO;
 import lima.jogodaforca.exceptions.ModelException;
 
 public class Jogador {
 
-	private static JogadorDAO jogadorDAO = new JogadorArquivoDAO();
-	
+	//private static JogadorDAO jogadorDAO = new JogadorArquivoDAO();
+	private static JogadorDAO jogadorDAO = new JogadorDataBaseDAO();
+
 	private String nome;
 	private Login login;
 	private int vitorias;
